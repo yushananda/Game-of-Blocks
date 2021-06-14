@@ -16,7 +16,7 @@ A modifer that uses the 'require' keyword to check if the address is the same as
 ### constructor()
 A constructor in this contract is used to set the Owner variable as the address of the contract owner.
 ### getCompoundInterest()
-A function to calculate compound interest for given principal, rate of interest and time period. Due to Solidity's poor support of fractions, a 'lazy compounding' algorithm has been used. Check [this](https://medium.com/coinmonks/math-in-solidity-part-4-compound-interest-512d9e13041b) for the details on the same.
+A function to calculate compound interest for given principal, rate of interest and time period. Due to Solidity's poor support of fractions, a 'lazy compounding' algorithm has been used. Check [this](https://medium.com/coinmonks/math-in-solidity-part-4-compound-interest-512d9e13041b) for details on the same.
 ### reqLoan()
 This function uses the getCompoundInterest() function to calculate the interest and store it in a uint256 variable called toPay. Then, it stores the loan request in the loans mapping. Next, it emits this request using the 'Request' event defined earlier. Lastly, it returns true if the mapping is successful.
 ### getOwnerBalance()
