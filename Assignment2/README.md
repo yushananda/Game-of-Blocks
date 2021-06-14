@@ -1,4 +1,4 @@
-**This is a README file which explains the program in the file [source_code](https://github.com/yushananda/Game-of-Blocks/blob/main/Assignment2/source_code#L20) in this folder. It aims to briefly explain what each function in the smart contract does.**
+**This is a README file which explains the program in the file [source_code](https://github.com/yushananda/Game-of-Blocks/blob/main/Assignment2/source_code#L20). It aims to briefly explain what each function in the smart contract does.**
 
 # MetaCoin
 The main contract. We first define a mapping known as balances, from address data type to uint256 data type. We then define an event 'Transfer' to enable the user to transfer funds. It takes the sender's address, receiver's address and the amount to be transferred as parameters.
