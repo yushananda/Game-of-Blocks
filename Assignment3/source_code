@@ -118,6 +118,11 @@ contract Cumulative_voting{
         
     }
     
+    function closeVoting isOwner public{
+    
+        openToVote=false;
+        
+    }
     function castVote(uint[] memory ballot) public{
         
         require(openToVote,"Voting not opened yet");
