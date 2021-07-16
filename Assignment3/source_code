@@ -1,0 +1,178 @@
+pragma solidity ^0.8.2;
+pragma abicoder v2;
+
+contract Cumulative_voting{
+    
+    struct candidate{
+        
+        string name;
+        address unid;
+        uint256 votecount;
+        bool ifAuthC;
+        
+    }
+    
+    struct voter{
+        
+        string name;
+        address unid;
+        bool ifVoted;
+        bool ifAuthV;
+        
+    }
+    
+     address private Owner;
+    
+     modifier isOwner() {                                                                        //validates if the calling address is same as that of the owner
+        require(msg.sender==Owner);
+        _;
+    }
+    
+    uint256 public numberOfSeats;
+    
+    function getnumberOfSeats(uint _numberOfSeats) isOwner public{
+        numberOfSeats=_numberOfSeats;
+    }      //working
+    
+    candidate[] candidateList;
+    voter[] voterList;                                                      //list of all voters
+    mapping(address=>voter) authVoters;                                     //mapping of authorised voters
+    bool openToVote;
+    bool nominationsBeingAccepted;
+    bool resultDeclared;
+    
+    constructor() public{
+        
+        Owner=msg.sender;
+        candidateList.push(candidate("NOTA",msg.sender,0,true));
+        nominationsBeingAccepted=true;
+        openToVote=false;
+        resultDeclared=false;
+        numberOfSeats=1;
+        
+    }
+    
+    function getCandidatelist(uint location) public view returns(string memory){
+        
+        require(nominationsBeingAccepted==false,"List not finalized, try again later");
+        
+        require(location<=candidateList.length,"Invalid location");
+        
+        require(candidateList[location].ifAuthC,"Candidate not authenticated");
+        
+        return(candidateList[location].name);
+        
+    }
+    
+    function signUpVoter(string memory _name) public{
+        
+        voterList.push(voter(_name,msg.sender,false,false));
+         
+    }
+    
+    function signUpCandidate(string memory _name) public{
+        
+        require(nominationsBeingAccepted,"Nomination period closed");
+        
+        candidateList.push(candidate(_name,msg.sender,0,false));
+        
+    }
+    
+    function authoriseVoters() isOwner public{
+        
+        for(uint256 i=0; i<voterList.length;++i){
+            
+            if(!voterList[i].ifAuthV){
+                
+                voterList[i].ifAuthV=true;                              //if you want to add any condition before this the owner can
+                authVoters[voterList[i].unid]=voterList[i];
+            
+            }
+        }
+        
+    }
+    
+    function authoriseCandidates() isOwner public{
+        
+        for(uint256 i=0; i<candidateList.length;++i){
+            
+            if(!candidateList[i].ifAuthC){
+                
+                candidateList[i].ifAuthC=true;                              //if you want to add any condition before this the owner can
+            
+            }
+        }
+        
+    }
+    
+    function closeNominations() isOwner public returns(string memory){
+        
+        nominationsBeingAccepted=false;
+        return("Authorize candidates before opening voting");
+        
+    }
+    
+    function openVoting() isOwner public{
+        
+        openToVote=true;
+        
+    }
+    
+    function castVote(uint[] memory ballot) public{
+        
+        require(openToVote,"Voting not opened yet");
+        
+        require(ballot.length<=numberOfSeats,"Too many choices, try again");
+        
+        require(!(authVoters[msg.sender].unid==address(0)),"Not authorized to vote");
+        
+        require(!authVoters[msg.sender].ifVoted,"Already voted");
+        
+        
+        for(uint256 i=0;i<ballot.length;++i){
+            candidateList[ballot[i]].votecount++;
+        }
+        
+        authVoters[msg.sender].ifVoted=true;
+        
+    }
+    
+    string[] winners;
+    uint256[] winnerVoteCount;
+    
+    function compileResult() isOwner public{
+        
+        openToVote=false;
+        uint256 max=0;
+        uint256 pos=0;
+        for(uint256 i=0;i<numberOfSeats;++i){
+            
+            for(uint256 j=0;j<candidateList.length;++j){
+                
+                if(max<candidateList[j].votecount)
+                    pos = j;
+            
+            }
+            
+            winners[i]=candidateList[pos].name;
+            winnerVoteCount[i]=candidateList[pos].votecount;
+            candidateList[pos].votecount=0;
+            pos=0;
+            max=0;
+            
+        }
+        
+        resultDeclared=true;
+        
+    }
+    
+    function viewResult() view public returns(string[] memory,uint256[] memory){
+        
+        require(resultDeclared,"Result yet to be declared, try again later");
+        
+        return(winners,winnerVoteCount);
+        
+    }
+    
+}
+
